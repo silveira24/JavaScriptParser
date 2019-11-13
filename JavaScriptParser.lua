@@ -3,14 +3,14 @@ local coder = require 'coder'
 local util = require'util'
 
 local parser = [[
-    parser                      <-      statement EOF
+    parser                      <-      sourceElements? EOF
     statement                   <-      (block / variableStatement / importStatement / exportStatement / emptyStatement / 
                                         classDeclaration / expressionStatement / ifStatement / iterationStatement /
                                         continueStatement / breakStatment / returnStatement / yieldStatement / withStatement /
                                         labelledStatement / switchStatement / throwStatement / tryStatement / debuggerStatement /
                                         functionDeclaration / generatorFunctionDeclaration)
     block                       <-      '{' statementList? '}'
-    statementList               <-      statement
+    statementList               <-      statement+
     variableStatement           <-      varModifier variableDeclarationList eos
     varModifier                 <-      Var / Let / Const
     variableDeclarationList     <-      variableDeclaration (',' variableDeclaration)*
@@ -67,7 +67,7 @@ local parser = [[
     lastElement                 <-      Ellipsis (Identifier / singleExpression)
     eos                         <-      SemiColon / '}' / EOF
     importStatement             <-      Import fromBlock
-    fromBlock                   <-      (Multiply / multipleImportStatement) (As identifierName)? From StringlLiteral eos
+    fromBlock                   <-      (Multiply / multipleImportStatement) (As identifierName)? From StringLiteral eos
     multipleImportStatement     <-      (identifierName ',')? '{' identifierName (',' identifierName)* '}'
     identifierName              <-      Identifier / reservedWord
     reservedWord                <-      keyword / NullLiteral / BooleanLiteral
@@ -85,7 +85,7 @@ local parser = [[
                                         getter '(' ')' '{' functionBody '}' /
                                         setter '(' formalParameterList? ')' '{' functionBody '}' /
                                         generatorMethod
-    propertyName                <-      identifierName / StringlLiteral / numericLiteral
+    propertyName                <-      identifierName / StringLiteral / numericLiteral
     formalParameterList         <-      formalParameterArg (',' formalParameterArg)* (',' lastFormalParameterArg)? /
                                         lastFormalParameterArg /
                                         arrayLiteral /
@@ -100,12 +100,12 @@ local parser = [[
                                         generatorMethod /
                                         Identifier
     functionBody                <-      sourceElements? 
-    sourceElements              <-      sourceElement
+    sourceElements              <-      sourceElement+
     sourceElement               <-      Export? statement
     getter                      <-      Identifier 'get'& propertyName
     setter                      <-      Identifier 'set'& propertyName
     generatorMethod             <-      '*'? Identifier '(' formalParameterList? ')' '{' functionBody '}'
-    expressionStatement         <-      !('{' / Function)& expressionSequence eos
+    expressionStatement         <-      !('{' / Function) expressionSequence eos
     Function                    <-      'function'
     expressionSequence          <-      singleExpression (',' singleExpression)*
     ifStatement                 <-      If '(' expressionSequence ')' statement (Else statement)?
@@ -145,7 +145,7 @@ local parser = [[
     BooleanLiteral              <-      'true' / 'false'
     DecimalLiteral              <-      DecimalIntegerLiteral ('.' [0-9]*)?
     DecimalIntegerLiteral       <-      '0' / [1-9] [0-9]*
-    StringlLiteral              <-      'StringlLiteral'?
+    StringLiteral               <-      '"' !('"')* '"'
     SemiColon                   <-      ';'
     EOF                         <-      !.
     Identifier                  <-      [a-zA-Z][a-zA-z0-9]*
