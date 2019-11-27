@@ -96,7 +96,7 @@ local parser = [[
     
     classTail                   <-      (Extends singleExpression)? '{' classElement* '}'
     
-    classElement                <-      (Static / Identifier / Async)* methodDefinition / 
+    classElement                <-      (Static / Async)* methodDefinition / 
                                         emptyStatement / 
                                         '#'? propertyName '=' singleExpression
 
@@ -138,10 +138,10 @@ local parser = [[
 
     expressionSequence          <-      singleExpression (',' singleExpression)*
 
-    singleExpression            <-      simpleSingleExpression/
-                                        recursiveSingleExpression
+    singleExpression            <-      recursiveSingleExpression /
+                                        simpleSingleExpression
 
-    simpleSingleExpression      <-      anoymousFunction
+    simpleSingleExpression      <-      anoymousFunction /
                                         Class Identifier? classTail /
                                         New singleExpression arguments? /
                                         New '.' Identifier /
@@ -172,7 +172,7 @@ local parser = [[
                                         simpleSingleExpression '--' /
                                         simpleSingleExpression ('*' / '/' / '%') singleExpression /
                                         simpleSingleExpression ('+' / '-') singleExpression /
-                                        singleExpression '??' singleExpression /
+                                        simpleSingleExpression '??' singleExpression /
                                         simpleSingleExpression ('<<' / '>>' / '>>>') singleExpression /
                                         simpleSingleExpression ('<' / '>' / '<=' / '>=') singleExpression /
                                         simpleSingleExpression Instanceof singleExpression /
@@ -197,7 +197,7 @@ local parser = [[
 
     arrowFunctionBody           <-      singleExpression /  '{' functionBody '}' 
 
-    assignmentOperator          <-      '*=' / '/=' ? '%=' / '+=' / '-=' / '<<=' /
+    assignmentOperator          <-      '*=' / '/=' / '%=' / '+=' / '-=' / '<<=' /
                                         '>>=' / '>>>=' / '&=' / '^=' / '/=' / '**='
 
     literal                     <-      NullLiteral / 
@@ -217,11 +217,11 @@ local parser = [[
                                         Super / Const / Export / Import / Implements / Let / Private / Public / 
                                         Interface / Package / Protected / Static / Yield / Async / Await / From / As
 
-    getter                      <-      Identifier 'get'& propertyName
+    getter                      <-      Identifier &'get' propertyName
     
-    setter                      <-      Identifier 'set'& propertyName
+    setter                      <-      Identifier &'set' propertyName
 
-    eos                         <-      SemiColon / '}' / EOF / %s
+    eos                         <-      SemiColon / EOF / &%nl / &'}' 
      
 
 
@@ -231,7 +231,7 @@ local parser = [[
     BooleanLiteral              <-      'true' / 'false'
     DecimalLiteral              <-      DecimalIntegerLiteral ('.' [0-9]*)?
     DecimalIntegerLiteral       <-      '0' / [1-9] [0-9]*
-    StringLiteral               <-      '"' (!'"' .)* '"'
+    StringLiteral               <-      '"' (!'"' .)* '"' / "'" (!"'" .)* "'"
     SemiColon                   <-      ';'
     EOF                         <-      !.
     Identifier                  <-      [a-zA-Z][a-zA-z0-9]*
