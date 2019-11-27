@@ -1,0 +1,3 @@
+class ClassWithoutExplicitStrictMode {
+    static myStaticMethod() {}
+}
