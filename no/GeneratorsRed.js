@@ -1,0 +1,4 @@
+let fibonacci = {
+    *[Symbol.iterator]() {
+       
+}

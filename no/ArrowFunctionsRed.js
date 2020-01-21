@@ -1,0 +1,3 @@
+nums.forEach (v => {
+
+})
